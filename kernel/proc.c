@@ -124,6 +124,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->cswitches = 0;
 
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {
@@ -328,7 +329,9 @@ kexit(int status)
 {
   struct proc *p = myproc();
 
-  if (p == initproc)
+  printk("Process %s (pid=%d) was context-switched %d times.\n", p->name, p->pid, p->cswitches);
+
+if (p == initproc)
     panic("init exiting");
 
   // Close all open files.
