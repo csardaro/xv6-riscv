@@ -147,6 +147,7 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_sync\
         $U/_spin\
+        $U/_timeprint\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

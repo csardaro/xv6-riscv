@@ -125,8 +125,10 @@ found:
   p->pid = allocpid();
   p->state = USED;
   p->cswitches = 0;
+  p->ctime = ticks;
+  p->stime = p->etime = p->rtime = 0;
 
-  // Allocate a trapframe page.
+// Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {
     freeproc(p);
     release(&p->lock);
@@ -331,6 +333,10 @@ kexit(int status)
 
   printk("Process %s (pid=%d) was context-switched %d times.\n", p->name, p->pid, p->cswitches);
 
+  p->etime = ticks;
+  printk("pid %d: ctime=%d stime=%d rtime=%d etime=%d\n",
+       p->pid, p->ctime, p->stime, p->rtime, p->etime);
+
 if (p == initproc)
     panic("init exiting");
 
@@ -444,7 +450,11 @@ scheduler(void)
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if (p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
+       if (p->stime == 0)
+        p->stime = ticks;
+       p->rtime++;
+
+ // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
         p->state = RUNNING;

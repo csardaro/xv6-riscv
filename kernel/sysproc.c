@@ -107,3 +107,14 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+extern uint ticks;
+extern struct spinlock tickslock;
+
+uint64
+sys_getticks(void)
+{
+  acquire(&tickslock);
+  uint t = ticks;
+  release(&tickslock);
+  return t;
+}
